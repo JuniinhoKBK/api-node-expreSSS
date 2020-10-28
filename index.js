@@ -1,37 +1,62 @@
 const express = require('express');
 const bodyParser = require('body-parser');
 const app = express();
-const dados = require('./db.json');
+const { Client } = require('./models');
+
 
 app.use(bodyParser.json());
 
-app.get('/livros',(req, res) => {
-    res.send(dados.livros);
-});
-
-app.get('/livros/:id', (req, res) =>{
-    const livro = dados.livro.filter((elemento) =>{
-        if(elemento.id == req.params.id){
-            return true
-        }
-        else{
-            return false;
-        }
-});
-    res.send(...livro);
+app.get('/' , async (req,res)=>{
+    res.send("Projeto em execução...");
 })
 
-app.post('/livros',(req, res) => {
-    res.send('Livros cadastrado com sucesso - ' + req.body.titulo);
+// Inserção de dado
+app.post('/clients', async (req, res) =>{
+    const client = await Client.create(req.body);
+    res.json(client);
 });
 
-app.put('/livros/:id', (req, res) => {
-    res.send('Livro atualizado com sucesso');
+// Listagem de todos os dados
+app.get('/clients', async (req, res)=>{
+    const clients = await Client.findAll();
+    res.json(clients);
+})
+
+// Remoção de dados 
+app.delete('/clients/:id', async (req, res)=>{
+    const status = await Client.destroy(
+        {
+            where: {
+                id: req.params.id
+            }
+        }
+    );
+    res.json(status);
 });
 
-app.delete('/livros/:id', (req, res) => {
-    res.send('Livro apagado com sucesso');
+// Atualização de dado
+app.put('/clients/:id' , async(req,res)=>{
+    const client = await Client.update(req.body,
+        {
+            where:{
+                id: req.params.id
+            }
+        }
+    );
+    res.json(client);
 });
 
+// Listar dado unico
+app.get('/clients/:id', async(req, res)=>{
+    const client = await Client.findAll(
+        {
+            where:{
+                id: req.params.id
+            }
+        }
+    );
+    res.json(...client);
+
+})
 
 app.listen(4000);
